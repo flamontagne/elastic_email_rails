@@ -12,7 +12,7 @@ module ElasticEmail
     end
 
     def elastic_email_send_url
-      'http://api.elasticemail.com/mailer/send'
+      'https://api.elasticemail.com/v2/email/send'
     end
 
   end

@@ -7,10 +7,6 @@ module ElasticEmail
       self.settings = settings
     end
 
-    def username
-      self.settings[:username]
-    end
-
     def api_key
       self.settings[:api_key]
     end
@@ -18,8 +14,8 @@ module ElasticEmail
     def deliver!(rails_message)
       response = elastic_email_client.send_message build_elastic_email_message_for(rails_message)
       response_body = response.body
-      if response.code == '200' and response_body.match('^[0-9|a-f]{8}-[0-9|a-f]{4}-[0-9|a-f]{4}-[0-9|a-f]{4}-[0-9|a-f]{12}$').present?
-        rails_message.message_id = response_body
+      if response.code == '200' && response_body.present? && JSON.parse(response_body)['success']
+        rails_message.message_id = JSON.parse(response_body)['data']['messageid']
       else
         raise Error.new(response_body)
       end
@@ -37,22 +33,21 @@ module ElasticEmail
 
     def build_basic_elastic_email_message_for(rails_message)
       elastic_email_message = {
-          username: username,
-          api_key: api_key,
-          to: rails_message[:to].formatted,
+          apikey: api_key,
+          msgTo: rails_message[:to].formatted,
           subject: rails_message.subject,
-          body_text: extract_text(rails_message),
-          body_html: extract_html(rails_message)
+          bodyText: extract_text(rails_message),
+          bodyHtml: extract_html(rails_message)
       }
 
       if rails_message[:from].tree.present?
         elastic_email_message[:from] = rails_message[:from].tree.addresses.first.address
-        elastic_email_message[:from_name] = rails_message[:from].tree.addresses.first.display_name
+        elastic_email_message[:fromName] = rails_message[:from].tree.addresses.first.display_name
       end
 
       if rails_message[:reply_to].present?
-        elastic_email_message[:reply_to] =     rails_message[:reply_to].tree.addresses.first.address
-        elastic_email_message[:reply_to_name] = rails_message[:reply_to].tree.addresses.first.display_name
+        elastic_email_message[:replyTo] =     rails_message[:reply_to].tree.addresses.first.address
+        elastic_email_message[:replyToName] = rails_message[:reply_to].tree.addresses.first.display_name
       end
 
       elastic_email_message
