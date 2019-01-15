@@ -37,18 +37,15 @@ module ElasticEmail
           msgTo: rails_message[:to].formatted,
           subject: rails_message.subject,
           bodyText: extract_text(rails_message),
-          bodyHtml: extract_html(rails_message)
+          bodyHtml: extract_html(rails_message),
+          isTransactional: rails_message[:is_transactional]
       }
 
-      if rails_message[:from].tree.present?
-        elastic_email_message[:from] = rails_message[:from].tree.addresses.first.address
-        elastic_email_message[:fromName] = rails_message[:from].tree.addresses.first.display_name
-      end
+      elastic_email_message[:from] = rails_message[:from].addrs.first.address
+      elastic_email_message[:fromName] = rails_message[:from].addrs.first.display_name
 
-      if rails_message[:reply_to].present?
-        elastic_email_message[:replyTo] =     rails_message[:reply_to].tree.addresses.first.address
-        elastic_email_message[:replyToName] = rails_message[:reply_to].tree.addresses.first.display_name
-      end
+      elastic_email_message[:replyTo] =     rails_message[:reply_to].addrs.first.address
+      elastic_email_message[:replyToName] = rails_message[:reply_to].addrs.first.display_name
 
       elastic_email_message
     end
