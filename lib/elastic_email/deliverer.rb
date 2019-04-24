@@ -34,7 +34,7 @@ module ElasticEmail
     def build_basic_elastic_email_message_for(rails_message)
       elastic_email_message = {
           apikey: api_key,
-          msgTo: rails_message[:to].formatted,
+          to: rails_message[:to].formatted,
           subject: rails_message.subject,
           bodyText: extract_text(rails_message),
           bodyHtml: extract_html(rails_message),
