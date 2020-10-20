@@ -44,6 +44,8 @@ module ElasticEmail
       if rails_message[:from].try(:addrs)
         elastic_email_message[:from] = rails_message[:from].addrs.first.address
         elastic_email_message[:fromName] = rails_message[:from].addrs.first.display_name
+      else
+        elastic_email_message[:from] = rails_message[:from]
       end
 
       if rails_message[:reply_to].try(:addrs)
