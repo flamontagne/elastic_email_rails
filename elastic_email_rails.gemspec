@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir['test/**/*']
 
   s.add_dependency 'actionmailer', '>= 3.2.12'
+  s.add_dependency "rest-client", ">= 1.6.7"
 
   s.add_development_dependency 'rspec', '~> 2.14.1'
   s.add_development_dependency 'rails', '>= 3.2.12'

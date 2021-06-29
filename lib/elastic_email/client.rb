@@ -1,10 +1,15 @@
 require 'net/http'
-
+require 'rest_client'
 module ElasticEmail
   class Client
 
     def send_message(options)
-      Net::HTTP.post_form(elastic_email_uri, options)
+      RestClient::Request.execute(
+        method: :post,
+        url: elastic_email_send_url,
+        payload: options,
+        verify_ssl: true
+      )
     end
 
     def elastic_email_uri

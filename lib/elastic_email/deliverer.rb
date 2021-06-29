@@ -34,11 +34,11 @@ module ElasticEmail
     def build_basic_elastic_email_message_for(rails_message)
       elastic_email_message = {
           apikey: api_key,
-          to: rails_message[:to].formatted,
+          to: rails_message[:to],
           subject: rails_message.subject,
           bodyText: extract_text(rails_message),
           bodyHtml: extract_html(rails_message),
-          isTransactional: rails_message[:is_transactional]
+          isTransactional: rails_message[:is_transactional] || false
       }
 
       if rails_message[:from].try(:addrs)
@@ -51,6 +51,18 @@ module ElasticEmail
       if rails_message[:reply_to].try(:addrs)
         elastic_email_message[:replyTo] =     rails_message[:reply_to].addrs.first.address
         elastic_email_message[:replyToName] = rails_message[:reply_to].addrs.first.display_name
+      end
+
+      # RestClient requires attachments to be in file format, use a temp directory and the decoded attachment
+      elastic_email_message[:attachment] = []
+      elastic_email_message[:inline] = []
+      rails_message.attachments.each do |attachment|
+        # then add as a file object
+        if attachment.inline?
+          elastic_email_message[:inline] << ElasticEmail::Attachment.new(attachment, encoding: 'ascii-8bit', inline: true)
+        else
+          elastic_email_message[:attachment] << ElasticEmail::Attachment.new(attachment, encoding: 'ascii-8bit')
+        end
       end
 
       elastic_email_message
