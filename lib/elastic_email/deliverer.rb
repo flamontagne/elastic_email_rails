@@ -14,10 +14,10 @@ module ElasticEmail
     def deliver!(rails_message)
       response = elastic_email_client.send_message build_elastic_email_message_for(rails_message)
       response_body = response.body
-      if response.code == '200' && response_body.present? && JSON.parse(response_body)['success']
+      if response.code.to_i == 200 && response_body.present? && JSON.parse(response_body)['success']
         rails_message.message_id = JSON.parse(response_body)['data']['messageid']
       else
-        raise Error.new(response_body)
+        raise Error.new("The Elastic Email API returned the following error: " + response_body + " (response code: #{response.code})")
       end
       response
     end
